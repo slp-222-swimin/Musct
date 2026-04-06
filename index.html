@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Musct - Sample Accurate BPM Cutter</title>
+    <link rel="stylesheet" href="/src/style.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div class="app-container">
+      <header class="app-header">
+        <h1>Musct</h1>
+        <p>Premium BPM & Sample Accurate Cutter</p>
+      </header>
+
+      <main class="app-main">
+        <div class="top-controls glass-panel">
+          <div class="file-loader">
+            <input type="file" id="audio-input" accept="audio/*" />
+            <label for="audio-input" class="btn-primary">Load Audio</label>
+            <span id="file-name" class="file-name">No file selected</span>
+          </div>
+          <div class="playback-controls">
+            <button id="btn-undo" class="btn-icon" title="Undo (Ctrl+Z)" disabled>
+              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+            </button>
+            <button id="btn-redo" class="btn-icon" title="Redo (Ctrl+Y / Ctrl+Shift+Z)" style="margin-right: 16px;" disabled>
+              <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M18.4 10.6C16.55 8.99 14.15 8 11.5 8c-4.65 0-8.58 3.03-9.96 7.22L3.9 16c1.05-3.19 4.06-5.5 7.6-5.5 1.95 0 3.73.72 5.12 1.88L13 16h9V7l-3.6 3.6z"/></svg>
+            </button>
+            <button id="btn-play" class="btn-icon" title="Play/Pause (Space)" disabled>
+              <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+            </button>
+            <button id="btn-stop" class="btn-icon" title="Stop" disabled>
+              <svg viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M6 6h12v12H6z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="workspace">
+          <div class="editor-area glass-panel">
+            <div id="waveform-container" class="waveform-container">
+              <!-- Canvas will be injected here by VirtualCanvas.js -->
+              <canvas id="waveform-canvas"></canvas>
+            </div>
+            <div class="zoom-controls">
+              <input type="range" id="zoom-slider" min="10" max="1000" value="100" />
+              <label>Zoom</label>
+            </div>
+          </div>
+
+          <aside class="sidebar glass-panel">
+            <section class="param-section">
+              <h3>Tempo Events</h3>
+              <div id="tempo-event-list" class="tempo-event-list">
+                <!-- Events will be injected here -->
+              </div>
+              <button id="btn-add-event" class="btn-primary btn-full-width">Add Tempo Key</button>
+              <button id="btn-add-delete" class="btn-primary btn-full-width" style="margin-top: 8px; background-color: var(--danger); color: white;">Add Delete Key</button>
+              
+              <div class="input-group global-offset-input">
+                <label for="input-offset">Base Offset (s)</label>
+                <input type="number" id="input-offset" value="0" step="0.001" />
+              </div>
+            </section>
+
+            <section class="param-section export-section">
+              <div id="export-status" class="status-msg"></div>
+            </section>
+          </aside>
+        </div>
+      </main>
+    </div>
+    <div id="context-menu" class="context-menu" style="display: none;">
+      <button id="ctx-add-tempo">Add Tempo Key here</button>
+      <button id="ctx-add-delete">Add Delete Range here</button>
+      <div class="separator"></div>
+      <button id="ctx-close">Cancel</button>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
