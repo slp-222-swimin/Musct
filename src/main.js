@@ -252,7 +252,14 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let j = index + 1; j < tempoSystem.events.length; j++) {
         if (tempoSystem.events[j].type === 'tempo') { nextEv = tempoSystem.events[j]; break; }
     }
-    const startSec = tempoSystem.getSecondsFromBeat(ev.beat);
+    
+    // For the very first Base segment, we want to start from the beginning of the audio file (0.0s), 
+    // so any intro before the Base Beat is included in the exported audio.
+    let startSec = tempoSystem.getSecondsFromBeat(ev.beat);
+    if (index === 0) {
+        startSec = Math.min(0, startSec);
+    }
+
     const endSec = nextEv ? tempoSystem.getSecondsFromBeat(nextEv.beat) : audioEngine.buffer.duration;
     const validIntervals = getValidIntervals(startSec, endSec);
     let totalValidDurationSec = validIntervals.reduce((sum, int) => sum + int.durationSec, 0);
@@ -265,10 +272,24 @@ document.addEventListener('DOMContentLoaded', () => {
         );
         let scheduleTime = 0;
         for (const interval of validIntervals) {
-            const source = offlineCtx.createBufferSource();
-            source.buffer = buffer; source.connect(offlineCtx.destination);
-            source.start(scheduleTime, Math.max(0, interval.startSec), interval.durationSec);
-            scheduleTime += interval.durationSec;
+            let offsetInFile = interval.startSec;
+            let playDuration = interval.durationSec;
+            
+            // If the start is before the audio file (negative), pad with silence
+            if (offsetInFile < 0) {
+                const silence = Math.abs(offsetInFile);
+                scheduleTime += silence;
+                offsetInFile = 0;
+                playDuration -= silence;
+            }
+
+            if (playDuration > 0) {
+                const source = offlineCtx.createBufferSource();
+                source.buffer = buffer; 
+                source.connect(offlineCtx.destination);
+                source.start(scheduleTime, offsetInFile, playDuration);
+                scheduleTime += playDuration;
+            }
         }
         const renderedBuffer = await offlineCtx.startRendering();
         const blob = WavEncoder.encode(renderedBuffer);
